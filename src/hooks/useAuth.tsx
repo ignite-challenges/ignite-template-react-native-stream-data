@@ -82,7 +82,8 @@ function AuthProvider({ children }: AuthProviderData) {
         setUser(userResponse.data.data[0]);
         setUserToken(params.access_token);
       }
-    } catch {
+    } catch(error) {
+      console.log(error);
       throw new Error();
     } finally {
       setIsLoggingIn(false);
