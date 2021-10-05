@@ -47,10 +47,6 @@ function AuthProvider({ children }: AuthProviderData) {
   const [user, setUser] = useState({} as User);
   const [userToken, setUserToken] = useState('');
 
-  useEffect(() => {
-    api.defaults.headers['Client-Id'] = CLIENT_ID;
-  }, []);
-
   async function signIn() {
     try {
       setIsLoggingIn(true);
@@ -92,23 +88,24 @@ function AuthProvider({ children }: AuthProviderData) {
 
   async function signOut() {
     try {
-      // set isLoggingOut to true
-
-      // call revokeAsync with access_token, client_id and twitchEndpoint revocation
+      setIsLoggingOut(true);
+      await revokeAsync(
+        { token: userToken, clientId: CLIENT_ID }, 
+        { revocationEndpoint: twitchEndpoints.revocation }
+      );
     } catch (error) {
+      console.log(error);
     } finally {
-      // set user state to an empty User object
-      // set userToken state to an empty string
-
-      // remove "access_token" from request's authorization header
-
-      // set isLoggingOut to false
+      setUser({} as User);
+      setUserToken('');
+      delete api.defaults.headers.authorization;
+      setIsLoggingOut(false);
     }
   }
 
   useEffect(() => {
-    // add client_id to request's "Client-Id" header
-  }, [])
+    api.defaults.headers['Client-Id'] = CLIENT_ID;
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, isLoggingOut, isLoggingIn, signIn, signOut }}>
